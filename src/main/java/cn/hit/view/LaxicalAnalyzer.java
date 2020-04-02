@@ -1,51 +1,35 @@
 package cn.hit.view;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import cn.hit.tool.FileReadTool;
+import cn.hit.tool.FileStore;
+
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.UIManager;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
-import java.awt.Component;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.JTextField;
 
 public class LaxicalAnalyzer extends JFrame {
 
+  /**
+   * the initial view that user can see when run this application.
+   */
+  private static final long serialVersionUID = 1L;
   private JPanel contentPane;
-  private File faFile;
-  private File stateFile;
-  private File testFile;
-  private String testString;
-  
-  public File getFaFile() {
-    return faFile;
-  }
-
-  public File getStateFile() {
-    return stateFile;
-  }
-
-  public File getTestFile() {
-    return testFile;
-  }
-
-  public String getTestString() {
-    return testString;
-  }
+  private FileStore fileStore=new FileStore();
   
   /**
    * Launch the application.
@@ -81,7 +65,7 @@ public class LaxicalAnalyzer extends JFrame {
  */
     JPanel fAJPanel = new JPanel();
     fAJPanel.setBackground(new Color(255, 250, 240));
-    fAJPanel.setBounds(31, 30, 336, 178);
+    fAJPanel.setBounds(31, 30, 336, 381);
     contentPane.add(fAJPanel);
     fAJPanel.setLayout(null);
     
@@ -112,7 +96,7 @@ public class LaxicalAnalyzer extends JFrame {
             String filepath = chooser.getSelectedFile().getAbsolutePath();      //获取绝对路径  
             System.out.println(filepath);  
             String faFileString=filepath.replaceAll("\\\\", "/");
-            faFile = new File(faFileString);
+            fileStore.setFaFile(new File(faFileString));
             String string=new String("\0");
             for (int i=faFileString.length()-1;i>0;i--) {
               if (faFileString.charAt(i)=='/') {
@@ -124,6 +108,7 @@ public class LaxicalAnalyzer extends JFrame {
         }  
     }  
     });
+
   
 /*
  * 测试用例文件的选择、显示和编辑。    
@@ -159,7 +144,7 @@ public class LaxicalAnalyzer extends JFrame {
     final JTextArea testTextArea = new JTextArea();
     testTextArea.setBounds(1, 1, 297, 266);
     testTextArea.setLineWrap(true);
-    testTextArea.setEnabled(true);
+    testTextArea.setEnabled(false);
     testTextArea.setBackground(Color.WHITE);
     testJPanel.add(testTextArea);
     
@@ -172,8 +157,8 @@ public class LaxicalAnalyzer extends JFrame {
             String filepath = chooser.getSelectedFile().getAbsolutePath();      //获取绝对路径  
             System.out.println(filepath);  
             String testFileString=filepath.replaceAll("\\\\", "/");
-            testFile = new File(testFileString);
-            FileReadTool tool=new FileReadTool(testFile);
+            fileStore.setTestFile(new File(testFileString));
+            FileReadTool tool=new FileReadTool(fileStore.getTestFile());
             testTextArea.setText(tool.getFileContext());
         }  
     }  
@@ -182,8 +167,10 @@ public class LaxicalAnalyzer extends JFrame {
     confirmButton_test.addActionListener(new ActionListener() {
       
       public void actionPerformed(ActionEvent e) {
-        testString=testTextArea.getText();
-        //to go
+        fileStore.setTestString(testTextArea.getText());
+        JFrame outFrame=new OutPutJFrame(fileStore);
+        outFrame.setVisible(true);
+        dispose();
       }
     });
     
@@ -199,7 +186,7 @@ public class LaxicalAnalyzer extends JFrame {
 /*
  * 状态表文件的选择
  */
-    JPanel stateJPanel = new JPanel();
+   /* JPanel stateJPanel = new JPanel();
     stateJPanel.setLayout(null);
     stateJPanel.setBackground(new Color(255, 250, 240));
     stateJPanel.setBounds(31, 224, 336, 187);
@@ -232,7 +219,7 @@ public class LaxicalAnalyzer extends JFrame {
             String filepath = chooser.getSelectedFile().getAbsolutePath();      //获取绝对路径  
             System.out.println(filepath);  
             String stateFileString=filepath.replaceAll("\\\\", "/");
-            stateFile = new File(stateFileString);
+            fileStore.setStateFile(new File(stateFileString));
             String string=new String("\0");
             for (int i=stateFileString.length()-1;i>0;i--) {
               if (stateFileString.charAt(i)=='/') {
@@ -243,8 +230,7 @@ public class LaxicalAnalyzer extends JFrame {
             fileNameLabel_state.setText(string);
         }  
     }  
-    });
+    });*/
   }
-
 
 }
