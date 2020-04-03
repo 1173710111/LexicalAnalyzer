@@ -1,20 +1,23 @@
 package cn.hit.view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
+import cn.hit.controller.LexicalAnalyzer;
 import cn.hit.tool.FileStore;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.SystemColor;
 import javax.swing.JTextArea;
+import javax.swing.RowSorter;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
 import java.awt.Component;
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
@@ -28,9 +31,10 @@ public class OutPutJFrame extends JFrame {
   /**
    * Create the frame.
    */
-  public OutPutJFrame(final FileStore fileStore) {
-    this.fileStore=fileStore;
+  public OutPutJFrame(FileStore file) {
+    this.fileStore=file;
     this.setTitle("´Ê·¨·ÖÎöÆ÷");
+    
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setBounds(400, 200, 778, 476);
     contentPane = new JPanel();
@@ -49,12 +53,12 @@ public class OutPutJFrame extends JFrame {
  */
     JPanel menuPanel = new JPanel();
     menuPanel.setBackground(new Color(112, 128, 144));
-    menuPanel.setBounds(57, 10, 660, 30);
+    menuPanel.setBounds(10, 10, 731, 30);
     contentPane.add(menuPanel);
     menuPanel.setLayout(null);
     
     JButton backButton = new JButton("\u8FD4\u56DE");
-    backButton.setBounds(40, 0, 115, 30);
+    backButton.setBounds(10, 0, 115, 30);
     backButton.setForeground(new Color(112, 128, 144));
     backButton.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
     backButton.setFocusPainted(false);
@@ -66,7 +70,7 @@ public class OutPutJFrame extends JFrame {
     testFileButton.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
     testFileButton.setFocusPainted(false);
     testFileButton.setBackground(Color.WHITE);
-    testFileButton.setBounds(195, 0, 115, 30);
+    testFileButton.setBounds(155, 0, 115, 30);
     menuPanel.add(testFileButton);
     
     JButton DFAButton = new JButton("DFA\u8F6C\u6362\u8868");
@@ -74,7 +78,7 @@ public class OutPutJFrame extends JFrame {
     DFAButton.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
     DFAButton.setFocusPainted(false);
     DFAButton.setBackground(Color.WHITE);
-    DFAButton.setBounds(350, 0, 115, 30);
+    DFAButton.setBounds(310, 0, 115, 30);
     menuPanel.add(DFAButton);
     
     JButton TokenButton = new JButton("Token\u5E8F\u5217");
@@ -82,8 +86,16 @@ public class OutPutJFrame extends JFrame {
     TokenButton.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
     TokenButton.setFocusPainted(false);
     TokenButton.setBackground(Color.WHITE);
-    TokenButton.setBounds(505, 0, 115, 30);
+    TokenButton.setBounds(465, 0, 115, 30);
     menuPanel.add(TokenButton);
+    
+    JButton errorButton = new JButton("\u9519\u8BEF\u5217\u8868");
+    errorButton.setForeground(new Color(112, 128, 144));
+    errorButton.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
+    errorButton.setFocusPainted(false);
+    errorButton.setBackground(Color.WHITE);
+    errorButton.setBounds(615, 0, 115, 30);
+    menuPanel.add(errorButton);
     
     
  /*
@@ -101,14 +113,14 @@ public class OutPutJFrame extends JFrame {
     testLabel.setFont(new Font("¿¬Ìå", Font.BOLD, 20));
     testPanel.add(testLabel);
         
-    JScrollPane scrollPane_1 = new JScrollPane((Component) null);
-    scrollPane_1.setBounds(10, 53, 703, 298);
-    scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-    scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-    testPanel.add(scrollPane_1);
+    JScrollPane testScrollPane = new JScrollPane((Component) null);
+    testScrollPane.setBounds(10, 53, 703, 298);
+    testScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    testScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+    testPanel.add(testScrollPane);
     
     final JTextArea testTextArea = new JTextArea();
-    scrollPane_1.setViewportView(testTextArea);
+    testScrollPane.setViewportView(testTextArea);
     testTextArea.setLineWrap(true);
     testTextArea.setEnabled(true);
     testTextArea.setBackground(Color.WHITE);
@@ -138,17 +150,12 @@ public class OutPutJFrame extends JFrame {
     DFALabel.setFont(new Font("¿¬Ìå", Font.BOLD, 20));
     DFAPanel.add(DFALabel);
     
-    JScrollPane scrollPane = new JScrollPane();
-    scrollPane.setBounds(10, 53, 703, 298);
-    scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-    scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-    DFAPanel.add(scrollPane);
+    JScrollPane dfaScrollPane = new JScrollPane();
+    dfaScrollPane.setBounds(10, 53, 703, 298);
+    dfaScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    dfaScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+    DFAPanel.add(dfaScrollPane);
     
-    final JTextArea DFATextArea = new JTextArea();
-    scrollPane.setViewportView(DFATextArea);
-    DFATextArea.setLineWrap(true);
-    DFATextArea.setEnabled(false);
-    DFATextArea.setBackground(Color.WHITE);
     
     
 /*
@@ -166,25 +173,63 @@ public class OutPutJFrame extends JFrame {
     TokenLabel.setFont(new Font("¿¬Ìå", Font.BOLD, 20));
     TokenPanel.add(TokenLabel);
     
-    JScrollPane scrollPane_2 = new JScrollPane((Component) null);
-    scrollPane_2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-    scrollPane_2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-    scrollPane_2.setBounds(10, 53, 703, 298);
-    TokenPanel.add(scrollPane_2);
+    JScrollPane tokenScrollPane = new JScrollPane((Component) null);
+    tokenScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    tokenScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+    tokenScrollPane.setBounds(10, 53, 703, 298);
+    TokenPanel.add(tokenScrollPane);
     
-    final JTextArea tokenTextArea = new JTextArea();
-    scrollPane_2.setViewportView(tokenTextArea);
-    tokenTextArea.setLineWrap(true);
-    tokenTextArea.setEnabled(false);
-    tokenTextArea.setBackground(Color.WHITE);
-
     
+/*
+ * ErrorTable-----------------------------------------------------------------------------------------------
+ *     
+ */
+    final JPanel errorPanel = new JPanel();
+    errorPanel.setBounds(0, 0, 723, 361);
+    panel.add(errorPanel);
+    errorPanel.setBackground(new Color(240, 248, 255));
+    errorPanel.setLayout(null);
+    
+    JLabel errorLabel = new JLabel("error\u8868");
+    errorLabel.setBounds(10, 10, 114, 24);
+    errorLabel.setForeground(new Color(153, 102, 153));
+    errorLabel.setFont(new Font("¿¬Ìå", Font.BOLD, 20));
+    errorPanel.add(errorLabel);
+    
+    JScrollPane errorScrollPane = new JScrollPane((Component) null);
+    errorScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    errorScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+    errorScrollPane.setBounds(10, 53, 703, 298);
+    errorPanel.add(errorScrollPane);
+/*
+ * ¸÷Table
+ */
+    final JTable dfaListTable = new JTable();
+    dfaListTable.setBackground(new Color(250, 240, 230));
+    dfaListTable.setFillsViewportHeight(true);
+    RowSorter<DefaultTableModel> sorter2 = new TableRowSorter<DefaultTableModel>(fileStore.getDfaListTbModel());
+    dfaListTable.setRowSorter(sorter2); 
+    dfaScrollPane.add(dfaListTable);
+  
+    final JTable tokenListTable=new JTable();
+    tokenListTable.setBackground(new Color(250, 240, 230));
+    tokenListTable.setFillsViewportHeight(true);
+    RowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(fileStore.getTokenListTbModel());
+    tokenListTable.setRowSorter(sorter); 
+    tokenScrollPane.add(tokenListTable);
+    
+    final JTable errorListTable=new JTable();
+    errorListTable.setBackground(new Color(250, 240, 230));
+    errorListTable.setFillsViewportHeight(true);
+    RowSorter<DefaultTableModel> sorter3 = new TableRowSorter<DefaultTableModel>(fileStore.getErrorListTbModel());
+    tokenListTable.setRowSorter(sorter3); 
+    errorScrollPane.add(errorListTable);
 /*
  * µã»÷¸÷°´Å¥
  */
     backButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        JFrame mainFrame=new LaxicalAnalyzer();
+        JFrame mainFrame=new Application();
         mainFrame.setVisible(true);
         dispose();
       }
@@ -195,25 +240,41 @@ public class OutPutJFrame extends JFrame {
         testPanel.setVisible(true);
         DFAPanel.setVisible(false);
         TokenPanel.setVisible(false);
+        errorPanel.setVisible(false);
         testTextArea.setText(fileStore.getTestString());
       }
     });
 
     DFAButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
+        if (fileStore.getTokenListTbModel()!=null) 
+          dfaListTable.setModel(fileStore.getDfaListTbModel());
         testPanel.setVisible(false);
         DFAPanel.setVisible(true);
         TokenPanel.setVisible(false);
-        DFATextArea.setText(fileStore.getDFAString());
+        errorPanel.setVisible(false);
       }
     });
     
     TokenButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
+        if (fileStore.getTokenListTbModel()!=null) 
+          tokenListTable.setModel(fileStore.getTokenListTbModel());
         testPanel.setVisible(false);
         DFAPanel.setVisible(false);
         TokenPanel.setVisible(true);
-        testTextArea.setText(fileStore.getTokenString());
+        errorPanel.setVisible(false);
+      }
+    });
+    
+    errorButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (fileStore.getTokenListTbModel()!=null) 
+          errorListTable.setModel(fileStore.getErrorListTbModel());
+        testPanel.setVisible(false);
+        DFAPanel.setVisible(false);
+        TokenPanel.setVisible(false);
+        errorPanel.setVisible(true);
       }
     });
     
@@ -223,13 +284,14 @@ public class OutPutJFrame extends JFrame {
         run();
         testPanel.setVisible(false);
         DFAPanel.setVisible(true);
-        TokenPanel.setVisible(false);
-        DFATextArea.setText(fileStore.getDFAString());
+        errorPanel.setVisible(false);
       }
     });
   }
   
   private void run() {
-    
+    LexicalAnalyzer lexicalAnalyzer=new LexicalAnalyzer(fileStore);
+    lexicalAnalyzer.run();
+    this.fileStore=lexicalAnalyzer.getFileStore();
   }
 }

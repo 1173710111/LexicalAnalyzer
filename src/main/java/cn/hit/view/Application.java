@@ -22,7 +22,7 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
-public class LaxicalAnalyzer extends JFrame {
+public class Application extends JFrame {
 
   /**
    * the initial view that user can see when run this application.
@@ -38,7 +38,7 @@ public class LaxicalAnalyzer extends JFrame {
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
-          LaxicalAnalyzer frame = new LaxicalAnalyzer();
+          Application frame = new Application();
           frame.setVisible(true);
         } catch (Exception e) {
           e.printStackTrace();
@@ -50,7 +50,7 @@ public class LaxicalAnalyzer extends JFrame {
   /**
    * Create the frame.
    */
-  public LaxicalAnalyzer() {
+  public Application() {
     this.setTitle("词法分析器");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setBounds(400, 200, 778, 476);
@@ -65,7 +65,7 @@ public class LaxicalAnalyzer extends JFrame {
  */
     JPanel fAJPanel = new JPanel();
     fAJPanel.setBackground(new Color(255, 250, 240));
-    fAJPanel.setBounds(31, 30, 336, 381);
+    fAJPanel.setBounds(31, 30, 336, 187);
     contentPane.add(fAJPanel);
     fAJPanel.setLayout(null);
     
@@ -158,8 +158,7 @@ public class LaxicalAnalyzer extends JFrame {
             System.out.println(filepath);  
             String testFileString=filepath.replaceAll("\\\\", "/");
             fileStore.setTestFile(new File(testFileString));
-            FileReadTool tool=new FileReadTool(fileStore.getTestFile());
-            testTextArea.setText(tool.getFileContext());
+            testTextArea.setText(fileStore.getTestString());
         }  
     }  
     });
@@ -167,7 +166,6 @@ public class LaxicalAnalyzer extends JFrame {
     confirmButton_test.addActionListener(new ActionListener() {
       
       public void actionPerformed(ActionEvent e) {
-        fileStore.setTestString(testTextArea.getText());
         JFrame outFrame=new OutPutJFrame(fileStore);
         outFrame.setVisible(true);
         dispose();
@@ -186,7 +184,7 @@ public class LaxicalAnalyzer extends JFrame {
 /*
  * 状态表文件的选择
  */
-   /* JPanel stateJPanel = new JPanel();
+    JPanel stateJPanel = new JPanel();
     stateJPanel.setLayout(null);
     stateJPanel.setBackground(new Color(255, 250, 240));
     stateJPanel.setBounds(31, 224, 336, 187);
@@ -230,7 +228,7 @@ public class LaxicalAnalyzer extends JFrame {
             fileNameLabel_state.setText(string);
         }  
     }  
-    });*/
+    });
   }
 
 }

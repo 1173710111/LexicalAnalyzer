@@ -5,28 +5,26 @@ import java.io.File;
 import java.io.FileReader;
 
 public class FileReadTool {
-  private String result;
-  public FileReadTool(File file) {
-      this.FileRead(file);
-  }
+  private static String result;
   
-  private void FileRead(File file) {
-      StringBuilder result=new StringBuilder();
+  private static void FileRead(File file) {
+      StringBuilder ans=new StringBuilder();
       try {
         BufferedReader br=new BufferedReader(new FileReader(file));
         String string=null;
         while ((string=br.readLine())!=null) {
-          result.append(string+System.lineSeparator());
+          ans.append(string+System.lineSeparator());
         }
         br.close();
       } catch (Exception e) {
         e.printStackTrace();
       }
-      this.result=result.toString();
+      result=ans.toString();
   }
   
-  public String getFileContext() {
-    return this.result;
+  public static String getFileContext(File file) {
+    FileRead(file);
+    return result;
   }
 
 }
