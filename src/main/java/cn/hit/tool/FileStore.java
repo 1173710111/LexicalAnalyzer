@@ -2,18 +2,18 @@ package cn.hit.tool;
 
 import java.io.File;
 
-import javax.swing.table.DefaultTableModel;
-
 public class FileStore {
   private File faFile;
   private File stateFile;
   private File testFile;
   private String testString;
-  private DefaultTableModel tokenListTbModel;
-  private DefaultTableModel dfaListTbModel;
-  private DefaultTableModel errorListTbModel;
-  
+  private String dfaString;
+  private String stateString;
+  private String tokenString;
+  private String errorString;
+
   public FileStore() {
+
   }
 
   public File getFaFile() {
@@ -38,40 +38,50 @@ public class FileStore {
 
   public void setTestFile(File testFile) {
     this.testFile = testFile;
-    this.testString=FileReadTool.getFileContext(testFile);
-  }
-  
-  public void setTestString(String testString) {
-    this.testString = testString;
+    setTestString(FileReadTool.getFileContext(testFile));
   }
 
   public String getTestString() {
     return testString;
   }
 
-  public DefaultTableModel getTokenListTbModel() {
-    return tokenListTbModel;
+  public void setTestString(String testString) {
+    this.testString = testString;
   }
 
-  public void setTokenListTbModel(DefaultTableModel tokenListTbModel) {
-    this.tokenListTbModel = tokenListTbModel;
+  public String getTokenString() {
+    return this.tokenString;
   }
-
-  public DefaultTableModel getDfaListTbModel() {
-    return dfaListTbModel;
-  }
-
-  public void setDfaListTbModel(DefaultTableModel dfaListTbModel) {
-    this.dfaListTbModel = dfaListTbModel;
-  }
-
-  public DefaultTableModel getErrorListTbModel() {
-    return errorListTbModel;
-  }
-
-  public void setErrorListTbModel(DefaultTableModel errorListTbModel) {
-    this.errorListTbModel = errorListTbModel;
+  
+  public void setTokenString(String tokenString) {
+    this.tokenString = tokenString;
   }
   
 
+  public String getDfaString() {
+    return dfaString;
+  }
+
+  public void setDfaString(String dfaString) {
+    this.dfaString = dfaString;
+  }
+
+  public String getStateString() {
+    return stateString;
+  }
+
+  public void setStateString(String stateString) {
+    this.stateString = stateString;
+  }
+
+  public String getErrorString() {
+    return errorString;
+  }
+
+  public void setErrorString(String errorString) {
+    this.errorString = errorString;
+  }
+
+
+  
 }

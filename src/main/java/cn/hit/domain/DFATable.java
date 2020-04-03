@@ -37,5 +37,4 @@ public class DFATable {
 		this.isFinish = isFinish;
 	}
 	
-
 }

@@ -7,7 +7,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-import cn.hit.controller.LexicalAnalyzer;
+import org.apache.poi.hpsf.Array;
+
+import cn.hit.controller.Analyzer;
+import cn.hit.controller.readDFATable;
+import cn.hit.domain.DFATable;
 import cn.hit.tool.FileStore;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -21,6 +25,9 @@ import javax.swing.JTable;
 import java.awt.Component;
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.awt.event.ActionEvent;
 
 public class OutPutJFrame extends JFrame {
@@ -143,12 +150,11 @@ public class OutPutJFrame extends JFrame {
     DFAPanel.setBackground(new Color(248, 248, 255));
     DFAPanel.setLayout(null);
     
-    
-    JLabel DFALabel = new JLabel("DFA\u8F6C\u6362\u8868");
-    DFALabel.setBounds(10, 10, 114, 24);
-    DFALabel.setForeground(new Color(153, 102, 153));
-    DFALabel.setFont(new Font("楷体", Font.BOLD, 20));
-    DFAPanel.add(DFALabel);
+    JLabel dfaLabel = new JLabel("DFA\u8F6C\u6362\u8868");
+    dfaLabel.setBounds(10, 10, 105, 33);
+    dfaLabel.setForeground(new Color(153, 102, 153));
+    dfaLabel.setFont(new Font("楷体", Font.BOLD, 20));
+    DFAPanel.add(dfaLabel);
     
     JScrollPane dfaScrollPane = new JScrollPane();
     dfaScrollPane.setBounds(10, 53, 703, 298);
@@ -156,7 +162,11 @@ public class OutPutJFrame extends JFrame {
     dfaScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
     DFAPanel.add(dfaScrollPane);
     
-    
+    final JTextArea dfaTextArea = new JTextArea();
+    dfaScrollPane.setViewportView(dfaTextArea);
+    dfaTextArea.setLineWrap(true);
+    dfaTextArea.setEnabled(false);
+    dfaTextArea.setBackground(Color.WHITE);
     
 /*
  * Token序列表----------------------------------------------------------------------------------------------   
@@ -179,6 +189,11 @@ public class OutPutJFrame extends JFrame {
     tokenScrollPane.setBounds(10, 53, 703, 298);
     TokenPanel.add(tokenScrollPane);
     
+    final JTextArea tokenTextArea = new JTextArea();
+    tokenScrollPane.setViewportView(tokenTextArea);
+    tokenTextArea.setLineWrap(true);
+    tokenTextArea.setEnabled(false);
+    tokenTextArea.setBackground(Color.WHITE);
     
 /*
  * ErrorTable-----------------------------------------------------------------------------------------------
@@ -201,29 +216,32 @@ public class OutPutJFrame extends JFrame {
     errorScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
     errorScrollPane.setBounds(10, 53, 703, 298);
     errorPanel.add(errorScrollPane);
+    
+    final JTextArea errorTextArea = new JTextArea();
+    errorScrollPane.setViewportView(errorTextArea);
+    errorTextArea.setLineWrap(true);
+    errorTextArea.setEnabled(false);
+    errorTextArea.setBackground(Color.WHITE);
+    errorTextArea.setText(fileStore.getTestString());
 /*
  * 各Table
  */
-    final JTable dfaListTable = new JTable();
-    dfaListTable.setBackground(new Color(250, 240, 230));
-    dfaListTable.setFillsViewportHeight(true);
-    RowSorter<DefaultTableModel> sorter2 = new TableRowSorter<DefaultTableModel>(fileStore.getDfaListTbModel());
-    dfaListTable.setRowSorter(sorter2); 
-    dfaScrollPane.add(dfaListTable);
-  
-    final JTable tokenListTable=new JTable();
-    tokenListTable.setBackground(new Color(250, 240, 230));
-    tokenListTable.setFillsViewportHeight(true);
-    RowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(fileStore.getTokenListTbModel());
-    tokenListTable.setRowSorter(sorter); 
-    tokenScrollPane.add(tokenListTable);
-    
-    final JTable errorListTable=new JTable();
-    errorListTable.setBackground(new Color(250, 240, 230));
-    errorListTable.setFillsViewportHeight(true);
-    RowSorter<DefaultTableModel> sorter3 = new TableRowSorter<DefaultTableModel>(fileStore.getErrorListTbModel());
-    tokenListTable.setRowSorter(sorter3); 
-    errorScrollPane.add(errorListTable);
+    /*
+     * final JTable dfaListTable = new JTable(); dfaListTable.setBackground(new Color(250, 240,
+     * 230)); dfaListTable.setFillsViewportHeight(true); RowSorter<DefaultTableModel> sorter2 = new
+     * TableRowSorter<DefaultTableModel>(fileStore.getDfaListTbModel());
+     * dfaListTable.setRowSorter(sorter2); dfaScrollPane.add(dfaListTable);
+     * 
+     * final JTable tokenListTable=new JTable(); tokenListTable.setBackground(new Color(250, 240,
+     * 230)); tokenListTable.setFillsViewportHeight(true); RowSorter<DefaultTableModel> sorter = new
+     * TableRowSorter<DefaultTableModel>(fileStore.getTokenListTbModel());
+     * tokenListTable.setRowSorter(sorter); tokenScrollPane.add(tokenListTable);
+     * 
+     * final JTable errorListTable=new JTable(); errorListTable.setBackground(new Color(250, 240,
+     * 230)); errorListTable.setFillsViewportHeight(true); RowSorter<DefaultTableModel> sorter3 =
+     * new TableRowSorter<DefaultTableModel>(fileStore.getErrorListTbModel());
+     * tokenListTable.setRowSorter(sorter3); errorScrollPane.add(errorListTable);
+     */
 /*
  * 点击各按钮
  */
@@ -241,14 +259,12 @@ public class OutPutJFrame extends JFrame {
         DFAPanel.setVisible(false);
         TokenPanel.setVisible(false);
         errorPanel.setVisible(false);
-        testTextArea.setText(fileStore.getTestString());
+        dfaTextArea.setText(fileStore.getTestString());
       }
     });
 
     DFAButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (fileStore.getTokenListTbModel()!=null) 
-          dfaListTable.setModel(fileStore.getDfaListTbModel());
         testPanel.setVisible(false);
         DFAPanel.setVisible(true);
         TokenPanel.setVisible(false);
@@ -258,8 +274,6 @@ public class OutPutJFrame extends JFrame {
     
     TokenButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (fileStore.getTokenListTbModel()!=null) 
-          tokenListTable.setModel(fileStore.getTokenListTbModel());
         testPanel.setVisible(false);
         DFAPanel.setVisible(false);
         TokenPanel.setVisible(true);
@@ -269,8 +283,6 @@ public class OutPutJFrame extends JFrame {
     
     errorButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (fileStore.getTokenListTbModel()!=null) 
-          errorListTable.setModel(fileStore.getErrorListTbModel());
         testPanel.setVisible(false);
         DFAPanel.setVisible(false);
         TokenPanel.setVisible(false);
@@ -281,17 +293,50 @@ public class OutPutJFrame extends JFrame {
     confirmButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fileStore.setTestString(testTextArea.getText());
-        run();
+        try {
+          run();
+          dfaTextArea.setText(fileStore.getDfaString());
+          tokenTextArea.setText(fileStore.getTokenString());
+          errorTextArea.setText(fileStore.getErrorString());
+        } catch (Exception e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
         testPanel.setVisible(false);
-        DFAPanel.setVisible(true);
+        DFAPanel.setVisible(false);
+        TokenPanel.setVisible(true);
         errorPanel.setVisible(false);
       }
     });
   }
   
-  private void run() {
-    LexicalAnalyzer lexicalAnalyzer=new LexicalAnalyzer(fileStore);
-    lexicalAnalyzer.run();
-    this.fileStore=lexicalAnalyzer.getFileStore();
+  private void run() throws Exception {
+    Analyzer analyzer=new Analyzer();
+    analyzer.lexicalAnalysis(fileStore.getTestString(), fileStore.getFaFile(), fileStore.getStateFile());
+    List<String> tokenStrings=analyzer.getTokens();
+    String tokenString=new String("");
+    for (String string:tokenStrings) {
+      tokenString=tokenString+string+"\n";
+    }
+    
+    this.fileStore.setTokenString(tokenString);
+    
+    List<String> errorStrings=analyzer.getErrors();
+    String errorString=new String("");
+    for (String string:errorStrings) {
+      errorString=errorString+string+"\n";
+    }
+    
+    this.fileStore.setErrorString(errorString);
+    
+    String dfaString=new String("");
+    String[][] dfaTable=new readDFATable(fileStore.getFaFile(), fileStore.getStateFile()).showDFA(); 
+    for (int i=0;i<dfaTable.length;i++) {
+      for (int j=0;j<dfaTable[i].length;j++) {
+        dfaString=dfaString+dfaTable[i][j]+"\t";
+      }
+      dfaString=dfaString+"\n";
+    }
+    this.fileStore.setDfaString(dfaString);
   }
 }

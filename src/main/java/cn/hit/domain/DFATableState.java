@@ -23,5 +23,4 @@ public class DFATableState {
 		this.isFinish = isFinish;
 	}
 	
-
 }

@@ -1,225 +1,219 @@
 package cn.hit.controller;
+/*
+ * public class readDFATable {
+ * 
+ * 
+ * //获得DFA转换表的值 public DFATable[] getDFA() { DFATable dfa[] = new DFATable[663];
+ * return dfa; } //获得状态表 public DFATableState[] getDFAState() { DFATableState
+ * state[]= new DFATableState[39]; return state; } }
+ */
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.poifs.filesystem.*;
 
-import cn.hit.domain.DFATable;
 import cn.hit.domain.DFATableState;
+import cn.hit.domain.DFATable;
 
+@SuppressWarnings("deprecation")
 public class readDFATable {
-  /**
-   * 
-   * 读取Excel的内容，第一维数组存储的是一行中格列的值，二维数组存储的是多少个行
-   * @param file 读取数据的源Excel
-   * @param ignoreRows 读取数据忽略的行数，比喻行头不需要读入 忽略的行数为1
-   * @return 读出的Excel中数据的内容
-   * @throws FileNotFoundException
-   * @throws IOException
-   */
-  private File faFile;
-  private File stateFile;
-  
-  public readDFATable(File faFile,File stateFile) {
-    this.faFile=faFile;
-    this.stateFile=stateFile;
-  }
-  
-  public static String[][] getData(File file, int ignoreRows)
-      throws FileNotFoundException, IOException {
-    List<String[]> result = new ArrayList<String[]>();
-    int rowSize = 0;
-    BufferedInputStream in = new BufferedInputStream(new FileInputStream(
-        file));
-    // 打开HSSFWorkbook
-    POIFSFileSystem fs = new POIFSFileSystem(in);
-    HSSFWorkbook wb = new HSSFWorkbook(fs);
-    HSSFCell cell = null;
-    for (int sheetIndex = 0; sheetIndex < wb.getNumberOfSheets(); sheetIndex++) {
-      HSSFSheet st = wb.getSheetAt(sheetIndex);
-      // 第一行为标题，不取
-      for (int rowIndex = ignoreRows; rowIndex <= st.getLastRowNum(); rowIndex++) {
-        HSSFRow row = st.getRow(rowIndex);
-        if (row == null) {
-          continue;
-        }
-        int tempRowSize = row.getLastCellNum() + 1;
-        if (tempRowSize > rowSize) {
-          rowSize = tempRowSize;
-        }
-        String[] values = new String[rowSize];
-        Arrays.fill(values, "");
-        boolean hasValue = false;
-        for (short columnIndex = 0; columnIndex <= row.getLastCellNum(); columnIndex++) {
-          String value = "";
-          cell = row.getCell(columnIndex);
-          if (cell != null) {
-            switch (cell.getCellType()) {
-              case STRING:
-                value = cell.getStringCellValue();
-                break;
-              case NUMERIC:
-                if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                  Date date = cell.getDateCellValue();
-                  if (date != null) {
-                    value = new SimpleDateFormat("yyyy-MM-dd")
-                        .format(date);
-                  } else {
-                    value = "";
-                  }
-                } else {
-                  value = new DecimalFormat("0").format(cell
-                      .getNumericCellValue());
-                }
-                break;
-              case FORMULA:
-                // 导入时如果为公式生成的数据则无值
-                if (!cell.getStringCellValue().equals("")) {
-                  value = cell.getStringCellValue();
-                } else {
-                  value = cell.getNumericCellValue() + "";
-                }
-                break;
-              case BLANK:
-                break;
-              case ERROR:
-                value = "";
-                break;
-              case BOOLEAN:
-                value = (cell.getBooleanCellValue() == true
-                    ? "Y"
-                    : "N");
-                break;
-              default:
-                value = "";
-            }
-          }
-          if (columnIndex == 0 && value.trim().equals("")) {
-            break;
-          }
-          values[columnIndex] = rightTrim(value);
-          hasValue = true;
-        }
-        if (hasValue) {
-          result.add(values);
-        }
-      }
-    }
-    in.close();
-    String[][] returnArray = new String[result.size()][rowSize];
-    for (int i = 0; i < returnArray.length; i++) {
-      returnArray[i] = (String[]) result.get(i);
-    }
-    return returnArray;
-  }
-  /**
-   * 
-   * 去掉字符串右边的空格
-   * @param str 要处理的字符串
-   * @return 处理后的字符串
-   */
+	private File faFile;
+	private File stateFile;
 
-  public static String rightTrim(String str) {
-    if (str == null) {
-      return "";
-    }
-    int length = str.length();
-    for (int i = length - 1; i >= 0; i--) {
-      if (str.charAt(i) != 0x20) {
-        break;
-      }
-      length--;
-    }
-    return str.substring(0, length);
-  }
+	public readDFATable(File faFile, File stateFile) {
+		this.faFile = faFile;
+		this.stateFile = stateFile;
+	}
+	
+	// 文件处理
+	public static String[][] getFile(File file) throws IOException {
+		ArrayList<String[]> resultList = new ArrayList<String[]>();
+		int rowSize = 0;
 
-  public DFATable[] addDFA() throws Exception {
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
 
-    File file = faFile;
+		POIFSFileSystem fs = new POIFSFileSystem(in);
+		// 创建一个excel文件
+		@SuppressWarnings("resource")
+		HSSFWorkbook workbook = new HSSFWorkbook(fs);
+		HSSFCell cell = null;
 
-    String[][] result = getData(file, 0);
+		// 按行执行，从第0行开始
+		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+			HSSFSheet sheet = workbook.getSheetAt(i);
+			for (int index = 0; index <= sheet.getLastRowNum(); index++) {
+				HSSFRow row = sheet.getRow(index);
+				if (row == null) {
+					continue;
+				}
 
-    int rowLength = result.length;
-    DFATable dfa[] = new DFATable[663];
-    int x = 0;
-    for (int i = 1; i < rowLength; i++) {
-      for (int j = 1; j < result[i].length - 2; j++) {
-        dfa[x] = new DFATable();
-        dfa[x].setState(Integer.parseInt(result[i][0]));
-        String[] strArray = null;
-        strArray = result[0][j].split(" ");
-        dfa[x].setInput(strArray);
-        dfa[x].setNextState(Integer.parseInt(result[i][j]));
-        // System.out.print(result[i][j]+" ");
-        x = x + 1;
-      }
+				int tempRow = row.getLastCellNum() + 1;
+				if (tempRow > rowSize) {
+					rowSize = tempRow;
+				}
 
-      // System.out.println();
+				String[] strings = new String[rowSize];
+				Arrays.fill(strings, "");
+				Boolean ifHashString = false;
+				
+				for (short cellnum = 0; cellnum <= row.getLastCellNum(); cellnum++) {
+					String string = "";
+					cell = row.getCell(cellnum);
+					if (cell != null) {
+						// 这里不是很确定,方法被取消了，应该是自动Unicode处理了
+						// cell.setEncoding(HSSFCell.ENCODING_UTF_16);
+						switch (cell.getCellType()) {
+						case STRING:
+							string = cell.getStringCellValue();
+							break;
+						case NUMERIC:
+							if (HSSFDateUtil.isCellDateFormatted(cell)) {
+								Date date = cell.getDateCellValue();
+								if (date != null) {
+									string = new SimpleDateFormat("yyyy-MM-dd").format(date);
+								} else {
+									string = "";
+								}
+							} else {
+								string = new DecimalFormat("0").format(cell.getNumericCellValue());
+							}
+							break;
+						case FORMULA:
+							if (!cell.getStringCellValue().equals("")) {
+								string = cell.getStringCellValue();
+							} else {
+								string = cell.getStringCellValue() + 1;
+							}
+							break;
+						case BLANK:
+							break;
+						case ERROR:
+							string = "";
+							break;
+						case BOOLEAN:
+							string = (cell.getBooleanCellValue() == true ? "Y" : "N");
+							break;
+						default:
+							string = "";
 
-    }
-    for (int i = 0; i < dfa.length; i++) {
-      if (dfa[i].getState() == 1) {
-        dfa[i].setType("标识符");
-      }
-      if (dfa[i].getState() >= 2 && dfa[i].getState() <= 7) {
-        dfa[i].setType("常数");
-      }
-      if (dfa[i].getState() >= 8 && dfa[i].getState() <= 11) {
-        dfa[i].setType("注释");
-      }
-      if (dfa[i].getState() >= 12 && dfa[i].getState() <= 18
-          || dfa[i].getState() >= 20 && dfa[i].getState() <= 28) {
-        dfa[i].setType("运算符");
-      }
-      if (dfa[i].getState() == 29 || dfa[i].getState() == 19) {
-        dfa[i].setType("界符");
-      }
-    }
+						}
+					}
 
-    return dfa;
-  }
+					if (cellnum == 0 && string.trim().equals("")) {
+						break;
+					}
+					strings[cellnum] = handleBlankString(string);
+					ifHashString = true;
+				}
+				if (ifHashString) {
+					resultList.add(strings);
+				}
+			}
 
-  public String[][] showDFA() throws Exception {
-    File file =faFile;
+		}
 
-    String[][] result = getData(file, 0);
+		in.close();
+		String[][] resultStrings = new String[resultList.size()][rowSize];
+		for (int i = 0; i < resultStrings.length; i++) {
+			resultStrings[i] = resultList.get(i);
+		}
+		return resultStrings;
+	}
 
-    /*
-     * int rowLength = result.length; for(int i=1;i<rowLength;i++) { for(int
-     * j=1;j<result[i].length-2;j++) { System.out.print(result[i][j]+" "); } System.out.println(); }
-     */
-    return result;
-  }
+	private static String handleBlankString(String string) {
+		if (string == null) {
+			return "";
+		}
+		int length = string.length();
+		for (int i = 0; i < length; i++) {
+			if (string.charAt(i) != 0x2) {
+				break;
+			}
+			length--;
+		}
+		return string.substring(0, length);
+	}
 
-  public DFATableState[] showDFAState() throws Exception {
-    File file = stateFile;
-    String[][] result = getData(file, 0);
-    int rowLength = result.length;
+	public DFATable[] getDFA() throws IOException {
+		//File file = new File("1.xls");
+		File file = faFile;
+		
+		String[][] strings = getFile(file);
+		int length = strings.length;
+		int flag = 0;
+		for (int i = 1; i < length; i++) 
+          for (int j = 0; j < strings[i].length - 2; j++)
+            flag++;
+		DFATable dfa[] = new DFATable[flag];
+		flag=0;
+		for (int i = 1; i < length; i++) {
+			for (int j = 0; j < strings[i].length - 2; j++) {
+				dfa[flag] = new DFATable();
+				dfa[flag].setState(Integer.parseInt(strings[i][0]));
+				//System.out.print(strings[i][0]);
+				String[] s = null;
+				s = strings[0][j].split(" ");
+				dfa[flag].setInput(s);
+				dfa[flag].setNextState(Integer.parseInt(strings[i][j]));
+				flag++;
+			}
+		}
+		for (int i = 0; i < dfa.length; i++) {
+			
+		  if(dfa[i].getState()==1) {
+				dfa[i].setType("标志符");
+			}
+			if(dfa[i].getState()>=2 && dfa[i].getState()<=7) {
+				dfa[i].setType("常数");
+			}
+			if(dfa[i].getState()>=8 && dfa[i].getState()<=11) {
+				dfa[i].setType("注释");
+			}
+			if(dfa[i].getState()>=12 && dfa[i].getState()<=18 || dfa[i].getState()>=20 && dfa[i].getState()<=28) {
+				dfa[i].setType("运算符");
+			}
+			if(dfa[i].getState()==29||dfa[i].getState()==19) {
+				dfa[i].setType("界符");
+			}
+		}
+		return dfa;
 
-    DFATableState state[] = new DFATableState[39];
-    int x = 0;
-    for (int i = 0; i < rowLength; i++) {
-      state[i] = new DFATableState();
-      state[i].setState(Integer.parseInt(result[i][0]));
-      state[i].setFinish(result[i][1].equals("1") ? true : false);
-      state[i].setType(result[i][2]);
-      // System.out.println(state[i].getState()+" "+state[i].getType()+" "+state[i].isFinish());
-    }
-    return state;
-  }
+	}
 
+	public String[][] showDFA() throws Exception {
+		File file = faFile;
+		//File file = new File("1.xls");
+		String[][] result = getFile(file);
+		return result;
+	}
+
+	public DFATableState[] getDFAState() throws Exception {
+		File file = stateFile;
+		String[][] result = getFile(file);
+		int rowLength = result.length;
+
+		DFATableState state[] = new DFATableState[39];
+		for (int i = 0; i < rowLength; i++) {
+			state[i] = new DFATableState();
+			state[i].setState(Integer.parseInt(result[i][0]));
+			state[i].setFinish(result[i][1].equals("1") ? true : false);
+			state[i].setType(result[i][2]);
+			// System.out.println(state[i].getState()+" "+state[i].getType()+"
+			// "+state[i].isFinish());
+		}
+		return state;
+	}
 }
