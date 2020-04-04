@@ -25,8 +25,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.*;
 
-import cn.hit.domain.DFATableState;
 import cn.hit.domain.DFATable;
+import cn.hit.domain.DFATableState;
 
 @SuppressWarnings("deprecation")
 public class readDFATable {
@@ -45,15 +45,17 @@ public class readDFATable {
 
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
 
+		//解析Excel表格
 		POIFSFileSystem fs = new POIFSFileSystem(in);
-		// 创建一个excel文件
+		// 构建一个新的文档
 		@SuppressWarnings("resource")
 		HSSFWorkbook workbook = new HSSFWorkbook(fs);
 		HSSFCell cell = null;
 
-		// 按行执行，从第0行开始
+		// 按页执行
 		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-			HSSFSheet sheet = workbook.getSheetAt(i);
+			HSSFSheet sheet = workbook.getSheetAt(i);//工作页
+			// 按行执行，直到最后一行
 			for (int index = 0; index <= sheet.getLastRowNum(); index++) {
 				HSSFRow row = sheet.getRow(index);
 				if (row == null) {
@@ -61,14 +63,14 @@ public class readDFATable {
 				}
 
 				int tempRow = row.getLastCellNum() + 1;
-				if (tempRow > rowSize) {
+				if (tempRow > rowSize) {//保证宽度一致
 					rowSize = tempRow;
 				}
-
+				
+				//按列读入，属性相同更易处理，并且二维数组先处理列更方便
 				String[] strings = new String[rowSize];
 				Arrays.fill(strings, "");
 				Boolean ifHashString = false;
-				
 				for (short cellnum = 0; cellnum <= row.getLastCellNum(); cellnum++) {
 					String string = "";
 					cell = row.getCell(cellnum);
@@ -79,7 +81,7 @@ public class readDFATable {
 						case STRING:
 							string = cell.getStringCellValue();
 							break;
-						case NUMERIC:
+						case NUMERIC://数值型-整数、小数、日期
 							if (HSSFDateUtil.isCellDateFormatted(cell)) {
 								Date date = cell.getDateCellValue();
 								if (date != null) {
@@ -91,16 +93,17 @@ public class readDFATable {
 								string = new DecimalFormat("0").format(cell.getNumericCellValue());
 							}
 							break;
-						case FORMULA:
+						case FORMULA://公式
+							//如果为公式生成的数据无值
 							if (!cell.getStringCellValue().equals("")) {
 								string = cell.getStringCellValue();
 							} else {
-								string = cell.getStringCellValue() + 1;
+								string = cell.getStringCellValue() + "";
 							}
 							break;
-						case BLANK:
+						case BLANK://空单元格-没有值
 							break;
-						case ERROR:
+						case ERROR://错误单元格
 							string = "";
 							break;
 						case BOOLEAN:
@@ -108,13 +111,14 @@ public class readDFATable {
 							break;
 						default:
 							string = "";
-
+							break;
 						}
 					}
-
+					//TRIM去掉两边空白符
 					if (cellnum == 0 && string.trim().equals("")) {
 						break;
 					}
+					//处理一下字符串右边的空格，并标记是否已有数据
 					strings[cellnum] = handleBlankString(string);
 					ifHashString = true;
 				}
@@ -138,7 +142,7 @@ public class readDFATable {
 			return "";
 		}
 		int length = string.length();
-		for (int i = 0; i < length; i++) {
+		for (int i = length - 1; i >= 0; i--) {
 			if (string.charAt(i) != 0x2) {
 				break;
 			}
@@ -150,20 +154,15 @@ public class readDFATable {
 	public DFATable[] getDFA() throws IOException {
 		//File file = new File("1.xls");
 		File file = faFile;
-		
+		DFATable dfa[] = new DFATable[663];
 		String[][] strings = getFile(file);
 		int length = strings.length;
+
 		int flag = 0;
-		for (int i = 1; i < length; i++) 
-          for (int j = 0; j < strings[i].length - 2; j++)
-            flag++;
-		DFATable dfa[] = new DFATable[flag];
-		flag=0;
 		for (int i = 1; i < length; i++) {
-			for (int j = 0; j < strings[i].length - 2; j++) {
+			for (int j = 1; j < strings[i].length - 2; j++) {
 				dfa[flag] = new DFATable();
 				dfa[flag].setState(Integer.parseInt(strings[i][0]));
-				//System.out.print(strings[i][0]);
 				String[] s = null;
 				s = strings[0][j].split(" ");
 				dfa[flag].setInput(s);
@@ -171,10 +170,10 @@ public class readDFATable {
 				flag++;
 			}
 		}
+
 		for (int i = 0; i < dfa.length; i++) {
-			
-		  if(dfa[i].getState()==1) {
-				dfa[i].setType("标志符");
+			if(dfa[i].getState()==1) {
+				dfa[i].setType("标识符");
 			}
 			if(dfa[i].getState()>=2 && dfa[i].getState()<=7) {
 				dfa[i].setType("常数");

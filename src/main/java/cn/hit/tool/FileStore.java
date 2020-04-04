@@ -2,6 +2,8 @@ package cn.hit.tool;
 
 import java.io.File;
 
+import javax.swing.table.DefaultTableModel;
+
 public class FileStore {
   private File faFile;
   private File stateFile;
@@ -11,6 +13,9 @@ public class FileStore {
   private String stateString;
   private String tokenString;
   private String errorString;
+  private DefaultTableModel dfaTableModel;
+  private DefaultTableModel tokenTableModel;
+  private DefaultTableModel errorTableModel;
 
   public FileStore() {
 
@@ -80,6 +85,30 @@ public class FileStore {
 
   public void setErrorString(String errorString) {
     this.errorString = errorString;
+  }
+
+  public DefaultTableModel getDfaTableModel() {
+    return dfaTableModel;
+  }
+
+  public void setDfaTableModel(DefaultTableModel dfaTableModel) {
+    this.dfaTableModel = dfaTableModel;
+  }
+
+  public DefaultTableModel getTokenTableModel() {
+    return tokenTableModel;
+  }
+
+  public void setTokenTableModel(DefaultTableModel tokenTableModel) {
+    this.tokenTableModel = tokenTableModel;
+  }
+
+  public DefaultTableModel getErrorTableModel() {
+    return errorTableModel;
+  }
+
+  public void setErrorTableModel(DefaultTableModel errorTableModel) {
+    this.errorTableModel = errorTableModel;
   }
 
 

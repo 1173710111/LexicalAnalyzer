@@ -92,7 +92,6 @@ public class Analyzer {
                 } else {
                   if (isKeyword(curString)) {
                     String tempString = curString + "    <" + curString + ",_>";
-                    System.out.println(tempString);
                     tokens.add(tempString);
                 } else {
                     if (getType(curState, DFAstate).equals("×¢ÊÍ") || getType(curState, DFAstate).equals("ÔËËã·û")
@@ -124,9 +123,8 @@ public class Analyzer {
                     String tempStringe = curString + "    µÚ" + i + "×Ö·ûÊÇ·Ç·¨×Ö·û";
                     tokens.add(tempStringt);
                     errors.add(tempStringe);
-                } if (isKeyword(curString)) {
+                }else if (isKeyword(curString)) {
                   String tempString = curString + "    <" + curString + ",_>";
-                  System.out.println(tempString);
                   tokens.add(tempString);
               } else {
                   if (getType(curState, DFAstate).equals("×¢ÊÍ") || getType(curState, DFAstate).equals("ÔËËã·û")
