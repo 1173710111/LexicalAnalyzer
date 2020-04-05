@@ -66,7 +66,6 @@ public class readDFATable {
 				if (tempRow > rowSize) {//保证宽度一致
 					rowSize = tempRow;
 				}
-				
 				//按列读入，属性相同更易处理，并且二维数组先处理列更方便
 				String[] strings = new String[rowSize];
 				Arrays.fill(strings, "");
@@ -151,7 +150,7 @@ public class readDFATable {
 		return string.substring(0, length);
 	}
 
-	public DFATable[] getDFA() throws IOException {
+	public DFATable[] getDFA() throws Exception {
 		//File file = new File("1.xls");
 		File file = faFile;
 		DFATable dfa[] = new DFATable[663];
@@ -172,20 +171,12 @@ public class readDFATable {
 		}
 
 		for (int i = 0; i < dfa.length; i++) {
-			if(dfa[i].getState()==1) {
-				dfa[i].setType("标识符");
-			}
-			if(dfa[i].getState()>=2 && dfa[i].getState()<=7) {
-				dfa[i].setType("常数");
-			}
-			if(dfa[i].getState()>=8 && dfa[i].getState()<=11) {
-				dfa[i].setType("注释");
-			}
-			if(dfa[i].getState()>=12 && dfa[i].getState()<=18 || dfa[i].getState()>=20 && dfa[i].getState()<=28) {
-				dfa[i].setType("运算符");
-			}
-			if(dfa[i].getState()==29||dfa[i].getState()==19) {
-				dfa[i].setType("界符");
+			DFATableState[] stateTables=getDFAState();
+			for (int j=0;j<stateTables.length;j++) {
+			  if (stateTables[j].getState()==dfa[i].getState()) {
+			    dfa[i].setType(stateTables[j].getType());
+			    dfa[i].setFinish(stateTables[j].isFinish());
+			  }
 			}
 		}
 		return dfa;
@@ -210,8 +201,6 @@ public class readDFATable {
 			state[i].setState(Integer.parseInt(result[i][0]));
 			state[i].setFinish(result[i][1].equals("1") ? true : false);
 			state[i].setType(result[i][2]);
-			// System.out.println(state[i].getState()+" "+state[i].getType()+"
-			// "+state[i].isFinish());
 		}
 		return state;
 	}

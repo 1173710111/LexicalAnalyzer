@@ -6,7 +6,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import cn.hit.tool.FileReadTool;
 import cn.hit.tool.FileStore;
 
 import java.awt.Color;

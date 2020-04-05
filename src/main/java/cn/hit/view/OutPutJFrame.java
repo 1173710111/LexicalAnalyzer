@@ -7,11 +7,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.apache.poi.hpsf.Array;
 
-import cn.hit.controller.Analyzer;
+import cn.hit.controller.Analyser;
 import cn.hit.controller.readDFATable;
-import cn.hit.domain.DFATable;
 import cn.hit.tool.FileStore;
 import cn.hit.tool.StringToTable;
 
@@ -27,13 +25,14 @@ import javax.swing.JTable;
 import java.awt.Component;
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.awt.event.ActionEvent;
 
 public class OutPutJFrame extends JFrame {
 
+  /**
+   * the main frame to show results.
+   */
+  private static final long serialVersionUID = 1L;
   private JPanel contentPane;
   private FileStore fileStore;
 
@@ -307,30 +306,30 @@ public class OutPutJFrame extends JFrame {
 
     confirmButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        fileStore.setTestString(testTextArea.getText());
+        String string=testTextArea.getText();
+        string=string.replaceAll("\r|\n|\t", "");
+        fileStore.setTestString(string);
         try {
           run();
           
-          dfaListTable.setModel(fileStore.getDfaTableModel());
-    
-          tokenListTable.setModel(fileStore.getTokenTableModel());
-          
-          errorListTable.setModel(fileStore.getErrorTableModel());
-          
-          RowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(fileStore.getTokenTableModel());
-          tokenListTable.setRowSorter(sorter);
-          RowSorter<DefaultTableModel> sorter2 = new TableRowSorter<DefaultTableModel>(fileStore.getDfaTableModel());
-          dfaListTable.setRowSorter(sorter2);
-          RowSorter<DefaultTableModel> sorter3 = new TableRowSorter<DefaultTableModel>(fileStore.getErrorTableModel());
-          errorListTable.setRowSorter(sorter3);
-      
-          // dfaTextArea.setText(fileStore.getDfaString());
-          // tokenTextArea.setText(fileStore.getTokenString());
-          // errorTextArea.setText(fileStore.getErrorString());
         } catch (Exception e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
+        dfaListTable.setModel(fileStore.getDfaTableModel());
+        tokenListTable.setModel(fileStore.getTokenTableModel());
+        errorListTable.setModel(fileStore.getErrorTableModel());
+        
+        RowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(fileStore.getTokenTableModel());
+        tokenListTable.setRowSorter(sorter);
+        RowSorter<DefaultTableModel> sorter2 = new TableRowSorter<DefaultTableModel>(fileStore.getDfaTableModel());
+        dfaListTable.setRowSorter(sorter2);
+        RowSorter<DefaultTableModel> sorter3 = new TableRowSorter<DefaultTableModel>(fileStore.getErrorTableModel());
+        errorListTable.setRowSorter(sorter3);
+    
+        // dfaTextArea.setText(fileStore.getDfaString());
+        // tokenTextArea.setText(fileStore.getTokenString());
+        // errorTextArea.setText(fileStore.getErrorString());
         testPanel.setVisible(false);
         DFAPanel.setVisible(false);
         TokenPanel.setVisible(true);
@@ -360,7 +359,7 @@ public class OutPutJFrame extends JFrame {
    * this.fileStore.setDfaString(dfaString); }
    */
   private void run() throws Exception {
-    Analyzer analyzer = new Analyzer();
+    Analyser analyzer = new Analyser();
     analyzer.lexicalAnalysis(fileStore.getTestString(), fileStore.getFaFile(),
         fileStore.getStateFile());
 

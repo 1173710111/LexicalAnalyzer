@@ -1,12 +1,7 @@
 package cn.hit.tool;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-
 import cn.hit.domain.DFATable;
 
 public class StringToTable {
@@ -28,23 +23,24 @@ public class StringToTable {
     return errorListTbModel;
 }
   public static DefaultTableModel dfa(DFATable[] dfaTables) {
-    String[] tableHead= {"状态","输入","下一状态","类型","是否结束"};
+    String[] tableHead= {"状态","类型","是否结束","输入","下一状态"};
     DefaultTableModel dfaTableModel=new DefaultTableModel(new Object[][] {},tableHead);
     for (DFATable dfaTable:dfaTables) {
       String[] dfaStrings=new String[5];
       dfaStrings[0]=dfaTable.getState()+"";
-      String string = "";
+      dfaStrings[1]=dfaTable.getType();
+      String string="";
+      if (dfaTable.isFinish())
+        string=string+"Y";
+      else string=string+"N";
+      dfaStrings[2]=string;
+      string = "";
       for (String tmpString:dfaTable.getInput()) {
         string=string+tmpString+" ";
       }
-      dfaStrings[1]=string;
-      dfaStrings[2]=dfaTable.getNextState()+"";
-      dfaStrings[3]=dfaTable.getType();
-      string="";
-      if (dfaTable.isFinish()==true)
-        string="Y";
-      else string="N";
-      dfaStrings[4]=string;
+      dfaStrings[3]=string;
+      dfaStrings[4]=dfaTable.getNextState()+"";
+     
       dfaTableModel.addRow(new Object[] {dfaStrings[0],dfaStrings[1],dfaStrings[2],dfaStrings[3],dfaStrings[4]});
     }
     return dfaTableModel; 
