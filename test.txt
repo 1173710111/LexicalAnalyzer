@@ -1,0 +1,19 @@
+int x=0x45CF,y=6;/*initial*/
+char test_string@='a';
+char testString='try';
+@@@HeyGuys!;
+double z=3.333E+6.0;
+int a=0;
+int b=7+6;
+float c=0.25E+;/*error*/
+char c[5];
+do{
+c[z]=z;
+z++;
+}while(z<=5);
+if(y>5||a<3){
+	test_string='hahaha';
+	y--;
+	z++;
+}
+return 0;

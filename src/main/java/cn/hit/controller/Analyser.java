@@ -36,6 +36,13 @@ public class Analyser {
     return tokens;
   }
 
+  /*
+   * public static void main(String[] args) { Analyser analyser=new Analyser(); try {
+   * analyser.lexicalAnalysis("\"a\"", new File("fa.xls"), new File("state.xls")); } catch
+   * (Exception e) { // TODO Auto-generated catch block e.printStackTrace(); }
+   * System.out.println(analyser.getTokens()); }
+   */
+  
   // ´Ê·¨·ÖÎö
   public void lexicalAnalysis(String str, File faFile, File stateFile) throws Exception {
     tokens.clear();
@@ -50,16 +57,26 @@ public class Analyser {
     readDFATable reader = new readDFATable(faFile, stateFile);
     DFATable dfa[] = reader.getDFA();
     DFATableState DFAstate[] = reader.getDFAState();
-   
+    /*
+     * for (int i = 0; i < dfa.length; i++) { System.out.println(dfa[i].getState());
+     * System.out.println(dfa[i].getType()); for (int j=0;j<dfa[i].getInput().length;j++) {
+     * System.out.print(dfa[i].getInput()[j]+" "); } }
+     */
 
     for (int i = 0; i < strline.length; i++) {
       curString = curString.concat(String.valueOf(strline[i]));
       lastState = curState;
+      if (curState==9||curState==10||curState==39||curState==41) {
+        curState=stateChange(strline[i], curState, dfa);
+        if (curState==-2) curState=lastState;
+        continue;
+      }
+      
       if (curString == " " || strline[i] == ' ') {
         curString = curString.replaceAll(" ", "");
         // ÊÇ·ñÎª¹Ø¼ü×Ö
         if (isKeyword(curString)) {
-          String tempString = curString + "    <" + curString + ",_>";
+          String tempString = curString + "    <" + "¹Ø¼ü×Ö" +"-"+tokenID(curString)+ ",_>";
           // System.out.println(tempString);
           tokens.add(tempString);
         } else {
@@ -91,7 +108,7 @@ public class Analyser {
           errors.add(tempStringe);
         } else {
           if (isKeyword(curString)) {
-            String tempString = curString + "    <" + curString + ",_>";
+            String tempString = curString + "    <" + "¹Ø¼ü×Ö" +"-"+tokenID(curString)+ ",_>";
             tokens.add(tempString);
           } else {
             if (getType(lastState, DFAstate).equals("×¢ÊÍ")
@@ -130,7 +147,7 @@ public class Analyser {
           tokens.add(tempStringt);
           errors.add(tempStringe);
         } else if (isKeyword(curString)) {
-          String tempString = curString + "    <" + curString + ",_>";
+          String tempString = curString + "    <" + "¹Ø¼ü×Ö" +"-"+tokenID(curString)+ ",_>";
            
           tokens.add(tempString);
         } else {

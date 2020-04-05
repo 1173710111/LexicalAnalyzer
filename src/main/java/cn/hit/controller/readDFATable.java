@@ -153,7 +153,7 @@ public class readDFATable {
 	public DFATable[] getDFA() throws Exception {
 		//File file = new File("1.xls");
 		File file = faFile;
-		DFATable dfa[] = new DFATable[663];
+		DFATable dfa[] = new DFATable[817];
 		String[][] strings = getFile(file);
 		int length = strings.length;
 
@@ -167,9 +167,10 @@ public class readDFATable {
 				dfa[flag].setInput(s);
 				dfa[flag].setNextState(Integer.parseInt(strings[i][j]));
 				flag++;
+				
 			}
 		}
-
+		//System.out.println(flag);
 		for (int i = 0; i < dfa.length; i++) {
 			DFATableState[] stateTables=getDFAState();
 			for (int j=0;j<stateTables.length;j++) {
@@ -195,7 +196,7 @@ public class readDFATable {
 		String[][] result = getFile(file);
 		int rowLength = result.length;
 
-		DFATableState state[] = new DFATableState[39];
+		DFATableState state[] = new DFATableState[43];
 		for (int i = 0; i < rowLength; i++) {
 			state[i] = new DFATableState();
 			state[i].setState(Integer.parseInt(result[i][0]));
